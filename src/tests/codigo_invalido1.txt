@@ -1,0 +1,12 @@
+int p, q;
+float r;
+{
+    p = 8;
+    q = (p + 2;
+    if (q > p) {
+        r = q * 2;
+        while r >= 10 {
+            r = r / 2;
+        }
+    }
+}
