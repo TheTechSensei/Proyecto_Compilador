@@ -1,0 +1,4 @@
+Final Boss
+
+Prompt: Generame un codigo semicmplejo de minimo 25 lineas de codigo en lenguaje C, que incluya operaciones, simbolos, comentarios, etc.
+ analizados por la siguiente producción: ""

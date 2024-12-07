@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project>
+<project name="Proyecto_Compilador" default="help" basedir=".">
+    <!-- Global properties -->
+    <property name="base.build.dir" value="bin"/>
+    
+    <!-- Properties for Analizador Léxico -->
+    <property name="analizador.src.dir" value="src"/>
+    <property name="analizador.build.dir" value="${base.build.dir}"/>
+
+    <!-- Help target -->
+    <target name="help">
+        <echo>Available targets:
+
+    analizador:test-all       -  Run all tests
+    analizador:test-complejo  -  Run complex test
+    analizador:test-valid1    -  Run valid test 1
+    analizador:test-valid2    -  Run valid test 2
+    analizador:test-valid3    -  Run valid test 3
+    analizador:test-invalid1  -  Run invalid test 1
+    analizador:test-invalid2  -  Run invalid test 2
+    analizador:test-invalid3  -  Run invalid test 3
+        </echo>
+    </target>
+
+    <!-- =================== Analizador Léxico Targets =================== -->
+    <target name="analizador:init">
+        <mkdir dir="${analizador.build.dir}"/>
+    </target>
+
+    <target name="analizador:generate" depends="analizador:init">
+        <condition property="jflex.command" value="jflex.bat" else="jflex">
+            <os family="windows"/>
+        </condition>
+        <exec executable="${jflex.command}" failonerror="true">
+            <arg value="-d"/>
+            <arg value="${analizador.src.dir}"/>
+            <arg value="${analizador.src.dir}/jflex/Lexer.flex"/>
+        </exec>
+        <exec executable="byaccj" failonerror="true">
+            <arg value="-Jclass=Parser"/>
+            <arg value="-Jpackage=src"/>
+            <arg value="-J"/>
+            <arg value="${analizador.src.dir}/byacc/Parser.y"/>
+        </exec>
+        <move todir="${analizador.src.dir}">
+            <fileset dir="." includes="Parser*.java"/>
+        </move>
+    </target>
+
+    <target name="analizador:clean">
+        <delete dir="${analizador.build.dir}"/>
+        <delete verbose="true">
+            <fileset dir="${analizador.src.dir}">
+                <include name="Lexer.java"/>
+                <include name="Lexer.java~"/>
+                <include name="Parser*.java"/>
+            </fileset>
+            <fileset dir=".">
+                <include name="y.output"/>
+                <include name="yacc.oa*"/>
+            </fileset>
+        </delete>
+    </target>
+
+    <target name="analizador:compile" depends="analizador:clean,analizador:generate">
+        <mkdir dir="${analizador.build.dir}"/>
+        <javac srcdir="${analizador.src.dir}" destdir="${analizador.build.dir}" includeantruntime="false"/>
+    </target>
+
+    <target name="analizador:run-test" depends="analizador:compile">
+        <java classname="src.Main" fork="true" failonerror="false">
+            <classpath>
+                <pathelement location="${analizador.build.dir}"/>
+                <pathelement location="."/>
+            </classpath>
+            <arg value="${file}"/>
+        </java>
+    </target>
+
+    <!-- Individual test targets -->
+    <target name="analizador:test-complejo">
+        <antcall target="analizador:run-test">
+            <param name="file" value="${analizador.src.dir}/tests/codigo_complejo.txt"/>
+        </antcall>
+    </target>
+
+    <target name="analizador:test-valid1" >
+        <antcall target="analizador:run-test">
+            <param name="file" value="${analizador.src.dir}/tests/codigo_valido1.txt"/>
+        </antcall>
+    </target>
+
+    <target name="analizador:test-valid2" >
+        <antcall target="analizador:run-test">
+            <param name="file" value="${analizador.src.dir}/tests/codigo_valido2.txt"/>
+        </antcall>
+    </target>
+
+    <target name="analizador:test-valid3" >
+        <antcall target="analizador:run-test">
+            <param name="file" value="${analizador.src.dir}/tests/codigo_valido3.txt"/>
+        </antcall>
+    </target>
+
+    <target name="analizador:test-invalid1" >
+        <antcall target="analizador:run-test">
+            <param name="file" value="${analizador.src.dir}/tests/codigo_invalido1.txt"/>
+        </antcall>
+    </target>
+
+    <target name="analizador:test-invalid2" >
+        <antcall target="analizador:run-test">
+            <param name="file" value="${analizador.src.dir}/tests/codigo_invalido2.txt"/>
+        </antcall>
+    </target>
+
+    <target name="analizador:test-invalid3" >
+        <antcall target="analizador:run-test">
+            <param name="file" value="${analizador.src.dir}/tests/codigo_invalido3.txt"/>
+        </antcall>
+    </target>
+
+    <target name="analizador:test-all"
+            depends="analizador:test-complejo,
+                     analizador:test-valid1,
+                     analizador:test-valid2,
+                     analizador:test-valid3,
+                     analizador:test-invalid1,
+                     analizador:test-invalid2,
+                     analizador:test-invalid3">
+    </target>
+
+</project>
