@@ -39,9 +39,9 @@
             <arg value="${analizador.src.dir}/jflex/Lexer.flex"/>
         </exec>
         <exec executable="byaccj" failonerror="true">
+            <arg value="-J"/>
             <arg value="-Jclass=Parser"/>
             <arg value="-Jpackage=src"/>
-            <arg value="-J"/>
             <arg value="${analizador.src.dir}/byacc/Parser.y"/>
         </exec>
         <move todir="${analizador.src.dir}">
