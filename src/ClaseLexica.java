@@ -57,7 +57,7 @@ public enum ClaseLexica {
     PARENTESIS_IZQ("PARENTESIS_IZQ"), // (
     PARENTESIS_DER("PARENTESIS_DER"), // )
     LLAVE_IZQ("LLAVE_IZQ"), // {
-    LLAVEDERECHA("LLAVE_DER"), // }
+    LLAVE_DER("LLAVE_DER"), // }
     CORCHETE_IZQ("CORCHETE_IZQ"), // [
     CORCHETE_DER("CORCHETE_DER"), // ]
     ASIGNACION("ASIGNACION"), // =
