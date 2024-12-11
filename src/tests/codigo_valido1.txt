@@ -1,17 +1,6 @@
-int a, b, c;
-float x, y, z;
-
-a = 5;
-b = 10;
-c = a + b;
-
-if (a < b) {
-    x = 1.5;
-    y = x * 2;
-} else {
-    z = 3.5;
-}
-
-while (c > 0) {
-    c = c - 1;
+func int main() {
+    int a = 10, b = 20;
+    int resultado = a + b;
+    print resultado;
+    return 0;
 }

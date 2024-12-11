@@ -1,53 +1,3 @@
-/**
- * Analizador Sintáctico para el lenguaje C_1
- *
- * Este archivo define la gramática y las acciones semánticas para 
- * un subconjunto del lenguaje C que incluye declaraciones de variables, 
- * estructuras de control y expresiones aritméticas.
- *
- * Gramática implementada:
- * programa → lista declaraciones cuerpo programa EOF
- *  
- * cuerpo programa → bloque principal | lista sentencias
- * bloque principal → {lista sentencias}
- * lista declaraciones → lista declaraciones declaracion | declaracion
- * declaracion → tipo lista var ;
- * tipo → int | float
- * lista var → lista var , id | id
- * 
- * lista sentencias → lista sentencias sentencia | sentencia
- * sentencias → {lista sentencias} | sentencia
- * 
- * sentencia → asignacion
- * | if stmt
- * | while stmt
- * 
- * asignacion → id = expresion ;
- * 
- * if stmt → if (expresion) sentencias
- * | if (expresion) sentencias else sentencias
- * 
- * while stmt → while (expresion) sentencias
- * 
- * expresion → expresion + termino
- * | expresion − termino
- * | expresion < termino
- * | expresion > termino
- * | expresion <= termino
- * | expresion >= termino
- * | expresion == termino
- * | expresion ! = termino
- * | termino
- * 
- * termino → termino ∗ factor
- * | termino / factor
- * | factor
- * 
- * factor → (expresion)
- * | id | numero entero | numero real
- *
- */
-
 %{
 /* Importaciones necesarias para el analizador */
 import java.io.*;
@@ -58,143 +8,297 @@ import src.Analizador_Sintactico_BYACCJ.*;
 %start programa
 
 /* Declaración de tokens y sus tipos */
-%token INT FLOAT IF ELSE WHILE                   /* Palabras reservadas */
-%token ID NUMERO_ENTERO NUMERO_REAL              /* Identificadores y números */
-%token PYC COMA LPAR RPAR LLLA RLLA              /* Símbolos de puntuación */
-%token ASIGNACION IGUALDAD MAYORQUE MENORQUE     /* Operadores */
-%token SUMA RESTA MULTIPLICACION DIVISION        /* Operadores aritméticos */
-%token MAYORIGUAL MENORIGUAL DIFERENTE           /* Operadores relacionales */
-%token EOF                                       /* Fin de archivo */
+%token <token> INT FLOAT DOUBLE COMPLEX RUNE VOID STRING
+%token <token> IF ELSE WHILE DO FOR BREAK RETURN SWITCH CASE DEFAULT PRINT SCAN
+%token <token> FUNC STRUCT PROTO PTR
+%token <token> TRUE FALSE
+%token <token> ID
+%token <token> LITERAL_ENTERA LITERAL_RUNA LITERAL_FLOTANTE LITERAL_DOBLE LITERAL_COMPLEJA LITERAL_CADENA
+%token <token> PUNTO_Y_COMA COMA PARENTESIS_IZQ PARENTESIS_DER LLAVE_IZQ LLAVE_DER CORCHETE_IZQ CORCHETE_DER PUNTO DOS_PUNTOS
+%token <token> ASIGNACION IGUALDAD MAYORQUE MENORQUE MAYORIGUAL MENORIGUAL DIFERENTE
+%token <token> SUMA RESTA MULTIPLICACION DIVISION MODULO DIVISION_ENTERA
+%token <token> OR_LOGICO AND_LOGICO NOT_LOGICO
+%token <token> OR_BIT AND_BIT XOR_BIT NOT_BIT SHIFT_IZQUIERDA SHIFT_DERECHA
+%token <token> EOF UNKNOWN
+
+%type <token> programa
+%type <token> decl_proto
+%type <token> decl_var
+%type <token> decl_func
+%type <token> tipo
+%type <token> basico
+%type <token> puntero
+%type <token> compuesto
+%type <token> lista_var
+%type <token> argumentos
+%type <token> lista_args
+%type <token> bloque
+%type <token> declaracion
+%type <token> instrucciones
+%type <token> sentencia
+%type <token> casos
+%type <token> caso
+%type <token> opcion
+%type <token> predeterminado
+%type <token> parte_izquierda
+%type <token> localizacion
+%type <token> arreglo
+%type <token> estructurado
+%type <token> exp
+%type <token> exp_and
+%type <token> exp_or_bit
+%type <token> exp_xor_bit
+%type <token> exp_and_bit
+%type <token> exp_igualdad
+%type <token> exp_relacional
+%type <token> exp_shift
+%type <token> exp_aditiva
+%type <token> exp_multiplicativa
+%type <token> exp_unaria
+%type <token> exp_primaria
+%type <token> parametros
+%type <token> lista_param
 
 /* Precedencia y asociatividad de operadores (de menor a mayor precedencia) */
+%left OR_LOGICO
+%left AND_LOGICO
+%left OR_BIT
+%left XOR_BIT
+%left AND_BIT
+%left IGUALDAD DIFERENTE
+%left MAYORQUE MENORQUE MAYORIGUAL MENORIGUAL
+%left SHIFT_IZQUIERDA SHIFT_DERECHA
 %left SUMA RESTA
-%left MULTIPLICACION DIVISION
-%nonassoc MENORQUE MAYORQUE MENORIGUAL MAYORIGUAL IGUALDAD DIFERENTE
-%nonassoc THEN
-%nonassoc ELSE
+%left MULTIPLICACION DIVISION MODULO DIVISION_ENTERA
+%right NOT_LOGICO NOT_BIT
+%nonassoc PARENTESIS_IZQ PARENTESIS_DER CORCHETE_IZQ CORCHETE_DER PUNTO
 
 %%
 /* Reglas de producción de la gramática con acciones semánticas */
 
 /**
  * Regla inicial del programa
- * Verifica la estructura general del programa
+ * Se verifica la estructura general del programa
  */
-programa : lista_declaraciones cuerpo_programa EOF
-        { System.out.println("\nPrograma analizado correctamente."); }
+programa : decl_proto decl_var decl_func EOF
+        {
+          System.out.println("\nPrograma analizado correctamente.");
+          $$ = new ParserVal(new Token(ClaseLexica.ID, "programa", yylineno));
+        }
         ;
 
-/**
- * Define la estructura del cuerpo principal del programa
- */
-cuerpo_programa : bloque_principal 
-                | lista_sentencias
-                ;
+decl_proto : proto tipo ID PARENTESIS_IZQ argumentos PARENTESIS_DER PUNTO_Y_COMA decl_proto
+           {
+             $$ = new ParserVal(new Token(ClaseLexica.PROTO, "decl_proto", yylineno));
+           }
+           | /* ε */
+           {
+             $$ = new ParserVal(new Token(ClaseLexica.PROTO, "epsilon", yylineno));
+           }
+           ;
 
-/**
- * Define un bloque de código delimitado por llaves
- */
-bloque_principal : LLLA lista_sentencias RLLA
-                ;
+decl_var : tipo lista_var PUNTO_Y_COMA decl_var
+         { $$ = new ParserVal(new Token(ClaseLexica.ID, "decl_var", yylineno));}
+         | /* ε */ { $$ = new ParserVal(new Token(ClaseLexica.ID, "epsilon", yylineno)); }
+         ;
 
-/**
- * Maneja múltiples declaraciones de variables
- */
-lista_declaraciones : lista_declaraciones declaracion
-                   | declaracion
-                   ;
+decl_func : FUNC tipo ID PARENTESIS_IZQ argumentos PARENTESIS_DER bloque decl_func
+          { $$ = new ParserVal(new Token(ClaseLexica.FUNC, "decl_func", yylineno)); }
+          | /* ε */
+          { $$ = new ParserVal(new Token(ClaseLexica.FUNC, "epsilon", yylineno)); }
+          ;
 
-/**
- * Procesa una declaración de variables
- */
-declaracion : tipo lista_var PYC
-            { System.out.println("\nDeclaración procesada"); }
-            ;
+tipo : basico compuesto
+     | STRUCT LLAVE_IZQ decl_var LLAVE_DER
+     | puntero
+     ;
 
-/**
- * Define los tipos de datos permitidos
- */
-tipo : INT | FLOAT ;
+puntero : PTR basico
+        ;
 
-/**
- * Maneja listas de variables en declaraciones
- */
+basico : INT
+       | FLOAT
+       | DOUBLE
+       | COMPLEX
+       | RUNE
+       | VOID
+       | STRING
+       ;
+
+compuesto : CORCHETE_IZQ LITERAL_ENTERA CORCHETE_DER compuesto
+          | /* ε */
+          ;
+
 lista_var : lista_var COMA ID
           | ID
           ;
 
-/**
- * Procesa múltiples sentencias
- */
-lista_sentencias : lista_sentencias sentencia
-                | sentencia
-                ;
-
-/**
- * Define bloques de sentencias o sentencias individuales
- */
-sentencias : LLLA lista_sentencias RLLA
-          | sentencia
-          ;
-
-/**
- * Define los tipos de sentencias permitidas
- */
-sentencia : asignacion
-          | if_stmt
-          | while_stmt
-          ;
-
-/**
- * Procesa asignaciones de valores a variables
- */
-asignacion : ID ASIGNACION expresion PYC
-           { System.out.println("\nAsignación procesada"); }
+argumentos : lista_args
+           | /* ε */
            ;
 
-/**
- * Maneja estructuras de control if-else
- */
-if_stmt : IF LPAR expresion RPAR sentencias %prec THEN
-        | IF LPAR expresion RPAR sentencias ELSE sentencias
-        ;
-
-/**
- * Maneja estructuras de control while
- */
-while_stmt : WHILE LPAR expresion RPAR sentencias
+lista_args : lista_args COMA tipo ID
+           | tipo ID
            ;
 
-/**
- * Define las expresiones permitidas y sus operadores
- */
-expresion : expresion SUMA termino
-          | expresion RESTA termino
-          | expresion MENORQUE termino
-          | expresion MAYORQUE termino
-          | expresion MENORIGUAL termino
-          | expresion MAYORIGUAL termino
-          | expresion IGUALDAD termino
-          | expresion DIFERENTE termino
-          | termino
-          ;
-
-/**
- * Define términos y operaciones de mayor precedencia
- */
-termino : termino MULTIPLICACION factor
-        | termino DIVISION factor
-        | factor
-        ;
-
-/**
- * Define los elementos básicos de las expresiones
- */
-factor : LPAR expresion RPAR
-       | ID
-       | NUMERO_ENTERO
-       | NUMERO_REAL
+bloque : LLAVE_IZQ declaraciones instrucciones LLAVE_DER
+       { $$ = new ParserVal(new Token(ClaseLexica.LLAVE_IZQ, "bloque", yylineno)); }
        ;
+
+declaraciones : declaraciones declaracion
+               { $$ = new ParserVal(new Token(ClaseLexica.ID, "declaraciones", yylineno));}
+               | /* ε */ { $$ = new ParserVal(new Token(ClaseLexica.ID, "epsilon", yylineno)); }
+               ;
+
+declaracion : tipo lista_var PUNTO_Y_COMA
+            { $$ = new ParserVal(new Token(ClaseLexica.ID, "declaracion", yylineno)); }
+            ;
+
+instrucciones : instrucciones sentencia
+              { $$ = new ParserVal(new Token(ClaseLexica.ID, "instrucciones", yylineno)); }
+              | sentencia
+              { $$ = $1; }
+              ;
+
+sentencia : IF PARENTESIS_IZQ exp PARENTESIS_DER sentencia
+          { $$ = new ParserVal(new Token(ClaseLexica.IF, "sentencia", yylineno)); }
+          | IF PARENTESIS_IZQ exp PARENTESIS_DER sentencia ELSE sentencia
+          { $$ = new ParserVal(new Token(ClaseLexica.IF, "sentencia", yylineno)); }
+          | WHILE PARENTESIS_IZQ exp PARENTESIS_DER sentencia
+          { $$ = new ParserVal(new Token(ClaseLexica.WHILE, "sentencia", yylineno)); }
+          | DO sentencia WHILE PARENTESIS_IZQ exp PARENTESIS_DER PUNTO_Y_COMA
+          { $$ = new ParserVal(new Token(ClaseLexica.DO, "sentencia", yylineno)); }
+          | BREAK PUNTO_Y_COMA
+          { $$ = new ParserVal(new Token(ClaseLexica.BREAK, "sentencia", yylineno)); }
+          | bloque
+          { $$ = $1; }
+          | RETURN exp PUNTO_Y_COMA
+          { $$ = new ParserVal(new Token(ClaseLexica.RETURN, "sentencia", yylineno)); }
+          | RETURN PUNTO_Y_COMA
+          { $$ = new ParserVal(new Token(ClaseLexica.RETURN, "sentencia", yylineno)); }
+          | SWITCH PARENTESIS_IZQ exp PARENTESIS_DER LLAVE_IZQ casos LLAVE_DER
+          { $$ = new ParserVal(new Token(ClaseLexica.SWITCH, "sentencia", yylineno)); }
+          | PRINT exp PUNTO_Y_COMA
+          { $$ = new ParserVal(new Token(ClaseLexica.PRINT, "sentencia", yylineno)); }
+          | SCAN parte_izquierda PUNTO_Y_COMA
+          { $$ = new ParserVal(new Token(ClaseLexica.SCAN, "sentencia", yylineno)); }
+          | parte_izquierda ASIGNACION exp PUNTO_Y_COMA
+          { $$ = new ParserVal(new Token(ClaseLexica.ASIGNACION, "sentencia", yylineno)); }
+          ;
+
+casos : caso casos
+      { $$ = new ParserVal(new Token(ClaseLexica.CASE, "casos", yylineno)); }
+      | /* ε */
+      { $$ = new ParserVal(new Token(ClaseLexica.CASE, "epsilon", yylineno)); }
+      | predeterminado
+      { $$ = $1; }
+      ;
+
+caso : CASE opcion DOS_PUNTOS instrucciones
+     { $$ = new ParserVal(new Token(ClaseLexica.CASE, "caso", yylineno)); }
+     ;
+
+opcion : LITERAL_ENTERA
+       | LITERAL_RUNA
+       ;
+
+predeterminado : DEFAULT DOS_PUNTOS instrucciones
+               { $$ = new ParserVal(new Token(ClaseLexica.DEFAULT, "predeterminado", yylineno)); }
+               ;
+
+parte_izquierda : ID localizacion
+               | ID
+               ;
+
+localizacion : arreglo
+            | estructurado
+            ;
+
+arreglo : CORCHETE_IZQ exp CORCHETE_DER arreglo
+        | CORCHETE_IZQ exp CORCHETE_DER
+        ;
+
+estructurado : PUNTO ID estructurado
+             | PUNTO ID
+             ;
+
+exp : exp OR_LOGICO exp_and
+    | exp_and
+    ;
+
+exp_and : exp_and AND_LOGICO exp_or_bit
+        | exp_or_bit
+        ;
+
+exp_or_bit : exp_or_bit OR_BIT exp_xor_bit
+           | exp_xor_bit
+           ;
+
+exp_xor_bit : exp_xor_bit XOR_BIT exp_and_bit
+            | exp_and_bit
+            ;
+
+exp_and_bit : exp_and_bit AND_BIT exp_igualdad
+            | exp_igualdad
+            ;
+
+exp_igualdad : exp_igualdad IGUALDAD exp_relacional
+             | exp_igualdad DIFERENTE exp_relacional
+             | exp_relacional
+             ;
+
+exp_relacional : exp_relacional MENORQUE exp_shift
+               | exp_relacional MAYORQUE exp_shift
+               | exp_relacional MENORIGUAL exp_shift
+               | exp_relacional MAYORIGUAL exp_shift
+               | exp_shift
+               ;
+
+exp_shift : exp_shift SHIFT_IZQUIERDA exp_aditiva
+          | exp_shift SHIFT_DERECHA exp_aditiva
+          | exp_aditiva
+          ;
+
+exp_aditiva : exp_aditiva SUMA exp_multiplicativa
+            | exp_aditiva RESTA exp_multiplicativa
+            | exp_multiplicativa
+            ;
+
+exp_multiplicativa : exp_multiplicativa MULTIPLICACION exp_unaria
+                   | exp_multiplicativa DIVISION exp_unaria
+                   | exp_multiplicativa MODULO exp_unaria
+                   | exp_multiplicativa DIVISION_ENTERA exp_unaria
+                   | exp_unaria
+                   ;
+
+exp_unaria : RESTA exp_unaria
+           | NOT_LOGICO exp_unaria
+           | NOT_BIT exp_unaria
+           | exp_primaria
+           ;
+
+exp_primaria : PARENTESIS_IZQ exp PARENTESIS_DER
+             | ID localizacion
+             | ID PARENTESIS_IZQ parametros PARENTESIS_DER
+             | ID
+             | FALSE
+             | TRUE
+             | LITERAL_ENTERA
+             | LITERAL_RUNA
+             | LITERAL_FLOTANTE
+             | LITERAL_DOBLE
+             | LITERAL_COMPLEJA
+             | LITERAL_CADENA
+             ;
+
+parametros : lista_param
+            { $$ = new ParserVal($1.token);}
+            | /* ε */ { $$ = new ParserVal(new Token(ClaseLexica.ID, "epsilon", yylineno)); }
+            ;
+
+lista_param : lista_param COMA exp
+            | exp
+            ;
 
 %%
 
@@ -217,9 +321,9 @@ public Parser(Reader input) {
  * @param msg Mensaje de error
  */
 private void yyerror(String msg) {
-    System.out.println("\nError sintáctico en línea " + 
-        (currentToken != null ? currentToken.getLinea() : "desconocida") + 
-        ": " + msg + 
+    System.out.println("\nError sintáctico en línea " +
+        (currentToken != null ? currentToken.getLinea() : "desconocida") +
+        ": " + msg +
         "\nToken actual: " + (currentToken != null ? currentToken.getLexema() : "null"));
 }
 
@@ -232,14 +336,15 @@ private int yylex() {
         currentToken = lexer.yylex();
         if (currentToken == null) {
             System.out.println("\nFin de archivo alcanzado");
-            return 0;
+            return 0; // Devuelve 0 para EOF
         }
-        
+
+        // Aquí se asigna el objeto Token a yylval.
         yylval = new ParserVal(currentToken);
-        return currentToken.getClaseLexica().ordinal() + 257;
+        return currentToken.getClase().ordinal() + 257;
     } catch (IOException e) {
         System.out.println("Error de lectura: " + e.getMessage());
-        return -1;
+        return -1; // Devuelve -1 en caso de error
     }
 }
 
@@ -252,7 +357,7 @@ public static void main(String args[]) {
         System.err.println("Uso: java Parser <archivo_entrada>");
         System.exit(1);
     }
-    
+
     try {
         Parser parser = new Parser(new FileReader(args[0]));
         parser.yyparse();

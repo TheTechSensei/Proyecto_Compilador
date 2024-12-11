@@ -1,12 +1,9 @@
-int p, q;
-float r;
-{
-    p = 8;
-    q = (p + 2;
-    if (q > p) {
-        r = q * 2;
-        while r >= 10 {
-            r = r / 2;
-        }
+proto void sumar(int a, b); // Falta un tipo para el segundo parámetro
+
+func int main() {
+    int a = "Hola"; // Error: tipo incorrecto
+    if (a === 5) {  // Error: operador no válido (=== no es válido en C)
+        print "Error";
     }
+    return 0;
 }

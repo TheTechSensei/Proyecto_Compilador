@@ -6,7 +6,7 @@
  * @authors the-tech-team
  */
 public enum ClaseLexica {
-    // Palabras clave
+    // Palabras clave (tipos y constructores de tipo)
     INT("INT"),
     FLOAT("FLOAT"),
     DOUBLE("DOUBLE"),
@@ -14,6 +14,14 @@ public enum ClaseLexica {
     RUNE("RUNE"),
     VOID("VOID"),
     STRING("STRING"),
+    STRUCT("STRUCT"),
+    PTR("PTR"),
+
+    // Palabras clave (declaraciones)
+    PROTO("PROTO"),
+    FUNC("FUNC"),
+
+    // Palabras clave (control de flujo y sentencias)
     IF("IF"),
     ELSE("ELSE"),
     WHILE("WHILE"),
@@ -24,6 +32,8 @@ public enum ClaseLexica {
     SWITCH("SWITCH"),
     CASE("CASE"),
     DEFAULT("DEFAULT"),
+
+    // Palabras clave (E/S)
     PRINT("PRINT"),
     SCAN("SCAN"),
 
@@ -31,47 +41,50 @@ public enum ClaseLexica {
     ID("ID"),
 
     // Números
-    NUMERO_ENTERO("NUMERO_ENTERO"),
     NUMERO_REAL("NUMERO_REAL"),
     LITERAL_ENTERA("LITERAL_ENTERA"),
-    LITERAL_RUNA("LITERAL_RUNA"),
     LITERAL_FLOTANTE("LITERAL_FLOTANTE"),
+    LITERAL_RUNA("LITERAL_RUNA"),
     LITERAL_DOBLE("LITERAL_DOBLE"),
     LITERAL_COMPLEJA("LITERAL_COMPLEJA"),
     LITERAL_CADENA("LITERAL_CADENA"),
 
     // Símbolos y operadores
-    PYC("PYC"),          // ;
-    COMA("COMA"),        // ,
-    LPAR("LPAR"),        // (
-    RPAR("RPAR"),        // )
-    LLLA("LLLA"),        // {
-    RLLA("RLLA"),        // }
+    PUNTO_Y_COMA("PUNTO_Y_COMA"), // ;
+    DOS_PUNTOS("DOS_PUNTOS"), // :
+    PUNTO("PUNTO"), // .
+    COMA("COMA"), // ,
+    PARENTESIS_IZQ("PARENTESIS_IZQ"), // (
+    PARENTESIS_DER("PARENTESIS_DER"), // )
+    LLAVE_IZQ("LLAVE_IZQ"), // {
+    LLAVEDERECHA("LLAVE_DER"), // }
+    CORCHETE_IZQ("CORCHETE_IZQ"), // [
+    CORCHETE_DER("CORCHETE_DER"), // ]
     ASIGNACION("ASIGNACION"), // =
-    IGUALDAD("IGUALDAD"),     // ==
-    DIFERENTE("DIFERENTE"),   // !=
-    MAYORQUE("MAYORQUE"),     // >
-    MENORQUE("MENORQUE"),     // <
+    IGUALDAD("IGUALDAD"), // ==
+    DIFERENTE("DIFERENTE"), // !=
+    MAYORQUE("MAYORQUE"), // >
+    MENORQUE("MENORQUE"), // <
     MAYORIGUAL("MAYORIGUAL"), // >=
     MENORIGUAL("MENORIGUAL"), // <=
-    SUMA("SUMA"),             // +
-    RESTA("RESTA"),           // -
+    SUMA("SUMA"), // +
+    RESTA("RESTA"), // -
     MULTIPLICACION("MULTIPLICACION"), // *
-    DIVISION("DIVISION"),     // /
-    MODULO("MODULO"),         // %
+    DIVISION("DIVISION"), // /
+    MODULO("MODULO"), // %
 
     // Operadores lógicos
-    OR_LOGICO("OR_LOGICO"),   // ||
+    OR_LOGICO("OR_LOGICO"), // ||
     AND_LOGICO("AND_LOGICO"), // &&
     NOT_LOGICO("NOT_LOGICO"), // !
 
     // Operadores bit a bit
-    OR_BIT("OR_BIT"),         // |
-    AND_BIT("AND_BIT"),       // &
-    XOR_BIT("XOR_BIT"),       // ^
-    NOT_BIT("NOT_BIT"),       // ~
+    OR_BIT("OR_BIT"), // |
+    AND_BIT("AND_BIT"), // &
+    XOR_BIT("XOR_BIT"), // ^
+    NOT_BIT("NOT_BIT"), // ~
     SHIFT_IZQUIERDA("SHIFT_IZQUIERDA"), // <<
-    SHIFT_DERECHA("SHIFT_DERECHA"),     // >>
+    SHIFT_DERECHA("SHIFT_DERECHA"), // >>
 
     // Valores booleanos
     TRUE("TRUE"),

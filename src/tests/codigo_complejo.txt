@@ -1,4 +1,63 @@
-Final Boss
+proto int sumar(int a, int b);
+proto void imprimirMensaje(string mensaje);
 
-Prompt: Generame un codigo semicmplejo de minimo 25 lineas de codigo en lenguaje C, que incluya operaciones, simbolos, comentarios, etc.
- analizados por la siguiente producción: ""
+struct Punto {
+    int x;
+    int y;
+};
+
+func int main() {
+    // Declaraciones
+    int a = 5, b = 10;
+    float c = 3.14;
+    double d = 2.71828;
+    string saludo = "Hola, mundo!";
+    complex z = 1.0 + 2.0i;
+    Punto p = {10, 20};
+
+    // Operaciones aritméticas
+    int resultado = sumar(a, b);
+    resultado += a * b / (a - b % 2);
+
+    // Condicionales
+    if (a > b && b != 0) {
+        imprimirMensaje("A es mayor que B");
+    } else {
+        imprimirMensaje("B es mayor o igual a A");
+    }
+
+    // Bucle
+    while (a < b) {
+        a += 1;
+    }
+
+    do {
+        a -= 1;
+    } while (a > 0);
+
+    // Switch
+    switch (a) {
+        case 1:
+            print "Valor es 1";
+            break;
+        case 2:
+            print "Valor es 2";
+            break;
+        default:
+            print "Valor desconocido";
+    }
+
+    // Entrada/salida
+    scan a;
+    print saludo;
+
+    return 0;
+}
+
+func int sumar(int a, int b) {
+    return a + b;
+}
+
+func void imprimirMensaje(string mensaje) {
+    print mensaje;
+}
