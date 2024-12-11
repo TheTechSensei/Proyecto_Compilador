@@ -26,14 +26,19 @@ Este repositorio contiene nuestra implementación de una Pila de Tablas de Símb
 ### Instalación
 
   ```sh
-    git clone https://github.com/Compiladores2025-1-7008/tabla-de-s-mbolos-y-de-tipos-the-tech-team
+    git clone https://github.com/TheTechSensei/Proyecto_Compilador
 
-    cd tabla-de-s-mbolos-y-de-tipos-the-tech-team
+    cd Proyecto_Compilador
   ```
 
-### Corre el programa 
+### Ve los comandos disponibles
 
   ```sh
-    javac *.java
-    java Main
+    ant help
+  ```
+
+### Corre el programa
+
+  ```sh
+    ant analizador:test-all
   ```

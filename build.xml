@@ -12,7 +12,8 @@
     <target name="help">
         <echo>Available targets:
 
-    analizador:test-all       -  Run all tests
+    analizador:run-test       -  Run all tests
+    analizador:clean          -  Cleans the repo
     analizador:test-complejo  -  Run complex test
     analizador:test-valid1    -  Run valid test 1
     analizador:test-valid2    -  Run valid test 2
@@ -68,7 +69,7 @@
         <javac srcdir="${analizador.src.dir}" destdir="${analizador.build.dir}" includeantruntime="false"/>
     </target>
 
-    <target name="analizador:run-test" depends="analizador:compile">
+    <target name="analizador:run-test" depends="analizador:compile, analizador:test-all">
         <java classname="src.Main" fork="true" failonerror="false">
             <classpath>
                 <pathelement location="${analizador.build.dir}"/>
