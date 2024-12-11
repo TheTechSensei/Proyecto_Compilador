@@ -1,5 +1,5 @@
+package Analizador_Sintactico;
 import java.io.FileReader;
-
 /**
  * Clase principal que inicia el análisis sintáctico.
  * 

@@ -13,6 +13,7 @@
  *
  * @author the-tech-team
  */
+package Analizador_Sintactico;
 
 %%
 
