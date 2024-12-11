@@ -60,7 +60,7 @@ numero_entero  = {digito}+
 numero_real    = {digito}+"."{digito}+
 numero_real_exp = {numero_real}(("E"|"e")("+"|"-")?{digito}+)?
 comentario_linea = "//".*
-comentario_bloque = "/"(.|\n)?"*/"
+comentario_bloque = "/*"([^*]|\*+[^*/])*(\*+|"*")
 
 complejo       = {numero_real}["i"]
 literal_entera = {numero_entero}

@@ -348,11 +348,11 @@ private Token currentToken;
 
 public Parser(Reader input) {
     lexer = new Lexer(input);
-    System.out.println("\nInicio del análisis sintáctico");
+    System.out.println("\nIniciando el análisis sintáctico... ⏳");
 }
 
 private void yyerror(String msg) {
-    System.out.println("\nError sintáctico en línea " +
+    System.out.println("\n❌ Error sintáctico en línea " +
         (currentToken != null ? currentToken.getLinea() : "desconocida") +
         ": " + msg +
         "\nToken actual: " + (currentToken != null ? currentToken.getLexema() : "null"));
@@ -362,13 +362,13 @@ private int yylex() {
     try {
         currentToken = lexer.yylex();
         if (currentToken == null) {
-            System.out.println("\nFin de archivo alcanzado");
+            System.out.println("\nFin de archivo alcanzado 📜");
             return 0; // EOF
         }
         yylval = new ParserVal(currentToken);
         return currentToken.getClase().ordinal() + 257;
     } catch (IOException e) {
-        System.out.println("Error de lectura: " + e.getMessage());
+        System.out.println("\n❌ Error de lectura: " + e.getMessage());
         return -1;
     }
 }
