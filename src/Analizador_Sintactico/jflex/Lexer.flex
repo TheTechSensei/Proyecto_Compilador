@@ -1,18 +1,4 @@
-/**
- * Analizador Léxico para el lenguaje C_1
- *
- * Este archivo define las reglas léxicas para reconocer los tokens del lenguaje C_1,
- * incluyendo palabras reservadas, identificadores, números, operadores y símbolos.
- *
- * Tokens reconocidos:
- * - Palabras reservadas: int, float, if, else, while
- * - Identificadores: secuencias de letras y dígitos que comienzan con letra
- * - Números: enteros y reales
- * - Operadores: +, -, *, /, =, ==, <, >, <=, >=, !=
- * - Símbolos: (, ), {, }, ;, ,
- *
- * @author the-tech-team
- */
+package Analizador_Sintactico;
 
 %%
 
@@ -59,7 +45,7 @@ numero_entero  = {digito}+
 numero_real    = {digito}+"."{digito}+
 numero_real_exp = {numero_real}(("E"|"e")("+"|"-")?{digito}+)?
 comentario_linea = "//".*
-comentario_bloque = "/"(.|\n)?"*/"
+comentario_bloque = "/*"([^*]|\*+[^*/])*(\*+|"*")
 
 complejo       = {numero_real}["i"]
 literal_entera = {numero_entero}

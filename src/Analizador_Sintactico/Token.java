@@ -1,3 +1,4 @@
+package Analizador_Sintactico;
 public class Token {
     private ClaseLexica clase;
     private String lexema;
