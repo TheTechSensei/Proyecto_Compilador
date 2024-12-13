@@ -8,7 +8,7 @@ public class Main {
      * Método principal que inicia el análisis sintáctico.
      * 
      * @param args Argumentos de la línea de comandos. Se espera un único argumento
-     *             que es el nombre del archivo de entrada.
+     *             que es el nombre del archivo de entrada a probar.
      */
     public static void main(String[] args) {
         if (args.length < 1) {
