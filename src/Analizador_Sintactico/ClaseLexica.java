@@ -1,3 +1,4 @@
+package Analizador_Sintactico;
 /**
  * Enumeración ClaseLexica que define los diferentes tipos de tokens que el
  * analizador léxico puede reconocer en el lenguaje C_1.
