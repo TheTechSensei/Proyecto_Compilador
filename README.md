@@ -40,5 +40,5 @@ Este repositorio contiene nuestra implementación de una Pila de Tablas de Símb
 ### Corre el programa
 
   ```sh
-    ant analizador:test-all
+    ant test-all
   ```
