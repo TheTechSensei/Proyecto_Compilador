@@ -1,13 +1,6 @@
 package Analizador_Sintactico;
-/**
- * Enumeración ClaseLexica que define los diferentes tipos de tokens que el
- * analizador léxico puede reconocer en el lenguaje C_1.
- * Cada constante representa una categoría de lexemas del código fuente.
- * 
- * @authors the-tech-team
- */
+
 public enum ClaseLexica {
-    // Palabras clave (tipos y constructores de tipo)
     INT("INT"),
     FLOAT("FLOAT"),
     DOUBLE("DOUBLE"),
@@ -15,14 +8,7 @@ public enum ClaseLexica {
     RUNE("RUNE"),
     VOID("VOID"),
     STRING("STRING"),
-    STRUCT("STRUCT"),
-    PTR("PTR"),
 
-    // Palabras clave (declaraciones)
-    PROTO("PROTO"),
-    FUNC("FUNC"),
-
-    // Palabras clave (control de flujo y sentencias)
     IF("IF"),
     ELSE("ELSE"),
     WHILE("WHILE"),
@@ -33,96 +19,76 @@ public enum ClaseLexica {
     SWITCH("SWITCH"),
     CASE("CASE"),
     DEFAULT("DEFAULT"),
-
-    // Palabras clave (E/S)
     PRINT("PRINT"),
     SCAN("SCAN"),
 
-    // Identificadores
+    FUNC("FUNC"),
+    STRUCT("STRUCT"),
+    PROTO("PROTO"),
+    PTR("PTR"),
+
+    TRUE("TRUE"),
+    FALSE("FALSE"),
+
     ID("ID"),
 
-    // Números
-    NUMERO_REAL("NUMERO_REAL"),
     LITERAL_ENTERA("LITERAL_ENTERA"),
-    LITERAL_FLOTANTE("LITERAL_FLOTANTE"),
     LITERAL_RUNA("LITERAL_RUNA"),
+    LITERAL_FLOTANTE("LITERAL_FLOTANTE"),
     LITERAL_DOBLE("LITERAL_DOBLE"),
     LITERAL_COMPLEJA("LITERAL_COMPLEJA"),
     LITERAL_CADENA("LITERAL_CADENA"),
 
-    // Símbolos y operadores
-    PUNTO_Y_COMA("PUNTO_Y_COMA"), // ;
-    DOS_PUNTOS("DOS_PUNTOS"), // :
-    PUNTO("PUNTO"), // .
-    COMA("COMA"), // ,
-    PARENTESIS_IZQ("PARENTESIS_IZQ"), // (
-    PARENTESIS_DER("PARENTESIS_DER"), // )
-    LLAVE_IZQ("LLAVE_IZQ"), // {
-    LLAVE_DER("LLAVE_DER"), // }
-    CORCHETE_IZQ("CORCHETE_IZQ"), // [
-    CORCHETE_DER("CORCHETE_DER"), // ]
-    ASIGNACION("ASIGNACION"), // =
-    IGUALDAD("IGUALDAD"), // ==
-    DIFERENTE("DIFERENTE"), // !=
-    MAYORQUE("MAYORQUE"), // >
-    MENORQUE("MENORQUE"), // <
-    MAYORIGUAL("MAYORIGUAL"), // >=
-    MENORIGUAL("MENORIGUAL"), // <=
-    SUMA("SUMA"), // +
-    RESTA("RESTA"), // -
-    MULTIPLICACION("MULTIPLICACION"), // *
-    DIVISION("DIVISION"), // /
-    MODULO("MODULO"), // %
+    PUNTO_Y_COMA("PUNTO_Y_COMA"),
+    COMA("COMA"),
+    PARENTESIS_IZQ("PARENTESIS_IZQ"),
+    PARENTESIS_DER("PARENTESIS_DER"),
+    LLAVE_IZQ("LLAVE_IZQ"),
+    LLAVE_DER("LLAVE_DER"),
+    CORCHETE_IZQ("CORCHETE_IZQ"),
+    CORCHETE_DER("CORCHETE_DER"),
+    PUNTO("PUNTO"),
+    DOS_PUNTOS("DOS_PUNTOS"),
 
-    // Operadores lógicos
-    OR_LOGICO("OR_LOGICO"), // ||
-    AND_LOGICO("AND_LOGICO"), // &&
-    NOT_LOGICO("NOT_LOGICO"), // !
+    ASIGNACION("ASIGNACION"),
+    IGUALDAD("IGUALDAD"),
+    MAYORQUE("MAYORQUE"),
+    MENORQUE("MENORQUE"),
+    MAYORIGUAL("MAYORIGUAL"),
+    MENORIGUAL("MENORIGUAL"),
+    DIFERENTE("DIFERENTE"),
 
-    // Operadores bit a bit
-    OR_BIT("OR_BIT"), // |
-    AND_BIT("AND_BIT"), // &
-    XOR_BIT("XOR_BIT"), // ^
-    NOT_BIT("NOT_BIT"), // ~
-    SHIFT_IZQUIERDA("SHIFT_IZQUIERDA"), // <<
-    SHIFT_DERECHA("SHIFT_DERECHA"), // >>
+    SUMA("SUMA"),
+    RESTA("RESTA"),
+    MULTIPLICACION("MULTIPLICACION"),
+    DIVISION("DIVISION"),
+    MODULO("MODULO"),
+    DIVISION_ENTERA("DIVISION_ENTERA"),
 
-    // Valores booleanos
-    TRUE("TRUE"),
-    FALSE("FALSE"),
+    OR_LOGICO("OR_LOGICO"),
+    AND_LOGICO("AND_LOGICO"),
+    NOT_LOGICO("NOT_LOGICO"),
 
-    // Fin de archivo
+    OR_BIT("OR_BIT"),
+    AND_BIT("AND_BIT"),
+    XOR_BIT("XOR_BIT"),
+    NOT_BIT("NOT_BIT"),
+    SHIFT_IZQUIERDA("SHIFT_IZQUIERDA"),
+    SHIFT_DERECHA("SHIFT_DERECHA"),
+
     EOF("EOF"),
-
-    // Desconocido
     UNKNOWN("UNKNOWN");
 
     private final String nombre;
 
-    /**
-     * Constructor de la enumeración ClaseLexica.
-     * 
-     * @param nombre El nombre de la clase léxica.
-     */
     ClaseLexica(String nombre) {
         this.nombre = nombre;
     }
 
-    /**
-     * Obtiene el nombre de la clase léxica.
-     * 
-     * @return El nombre de la clase léxica.
-     */
     public String getNombre() {
         return nombre;
     }
 
-    /**
-     * Método para obtener el nombre de la clase léxica a partir de su código.
-     * 
-     * @param claseLexica El código de la clase léxica.
-     * @return El nombre de la clase léxica.
-     */
     public static String getNombreClase(ClaseLexica claseLexica) {
         for (ClaseLexica clase : values()) {
             if (clase == claseLexica) {

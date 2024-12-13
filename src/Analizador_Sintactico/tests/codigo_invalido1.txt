@@ -1,8 +1,8 @@
-proto void sumar(int a, b); // Falta un tipo para el segundo parámetro
+proto void sumar(int a, b);
 
 func int main() {
-    int a = "Hola"; // Error: tipo incorrecto
-    if (a === 5) {  // Error: operador no válido (=== no es válido en C)
+    int a = "Hola";
+    if (a === 5) {
         print "Error";
     }
     return 0;

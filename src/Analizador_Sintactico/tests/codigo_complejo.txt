@@ -17,7 +17,7 @@ func int main() {
 
     // Operaciones aritméticas
     int resultado = sumar(a, b);
-    resultado += a * b / (a - b % 2);
+    resultado = a * b / (a - b % 2);
 
     // Condicionales
     if (a > b && b != 0) {
@@ -28,11 +28,11 @@ func int main() {
 
     // Bucle
     while (a < b) {
-        a += 1;
+        a = 1;
     }
 
     do {
-        a -= 1;
+        a = 1;
     } while (a > 0);
 
     // Switch

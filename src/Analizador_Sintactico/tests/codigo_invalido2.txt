@@ -1,7 +1,7 @@
 func int main() {
-    int a 5; // Falta el operador '='
-    if (a <) { // Falta una expresión válida
+    int a 5;
+    if (a <) {
         print "Error de sintaxis";
     }
-    return 0 // Falta el punto y coma al final
+    return 0
 }

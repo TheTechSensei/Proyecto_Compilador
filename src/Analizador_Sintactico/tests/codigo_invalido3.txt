@@ -1,11 +1,11 @@
-proto int main // Falta el paréntesis para argumentos y punto y coma
+proto int main
 func void calcular() {
     switch {
-        case 1: // Falta un valor para comparar
+        case 1:
             print "Error";
             break;
     }
     struct {
-        int a, b // Falta el punto y coma al final de la declaración
+        int a, b
     }
 }
