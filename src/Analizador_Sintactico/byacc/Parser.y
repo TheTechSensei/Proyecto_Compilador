@@ -21,6 +21,7 @@ import Analizador_Sintactico.*;
 %token EOF UNKNOWN
 
 /* Precedencia y asociatividad de operadores */
+%nonassoc ASIGNACION
 %left OR_LOGICO
 %left AND_LOGICO
 %left OR_BIT
@@ -33,7 +34,8 @@ import Analizador_Sintactico.*;
 %left MULTIPLICACION DIVISION MODULO DIVISION_ENTERA
 %right NOT_LOGICO NOT_BIT
 %nonassoc PARENTESIS_IZQ PARENTESIS_DER CORCHETE_IZQ CORCHETE_DER PUNTO
-%nonassoc IF ELSE WHILE DO SWITCH CASE DEFAULT
+%nonassoc IF
+%right ELSE
 
 %%
 /* Reglas de producción */
@@ -72,11 +74,10 @@ decl_func : FUNC tipo ID PARENTESIS_IZQ argumentos PARENTESIS_DER bloque decl_fu
 
 tipo : basico compuesto
      | STRUCT LLAVE_IZQ decl_var LLAVE_DER
-     | STRUCT ID LLAVE_IZQ decl_var LLAVE_DER
+     | STRUCT ID
      | puntero
-     | ID  /* Ahora permitimos que un ID actúe como tipo, e.g. Punto */
+     | ID  
      ;
-
 
 puntero : PTR basico
         { /* Puntero a tipo básico */ }
@@ -174,8 +175,8 @@ sentencia : if_sentencia
           { /* Sentencia PRINT procesada */ }
           | SCAN parte_izquierda PUNTO_Y_COMA
           { /* Sentencia SCAN procesada */ }
-          | parte_izquierda ASIGNACION exp PUNTO_Y_COMA
-          { /* Sentencia de asignación procesada */ }
+          | ID ASIGNACION exp PUNTO_Y_COMA
+          | ID localizacion ASIGNACION exp PUNTO_Y_COMA
           | ID PARENTESIS_IZQ parametros PARENTESIS_DER PUNTO_Y_COMA
           { /* Llamada a función como sentencia */ }
           ;
@@ -233,148 +234,66 @@ parte_izquierda : ID localizacion
                 ;
 
 localizacion : arreglo 
-             { /* Localización tipo arreglo */ }
-             | estructurado 
-             { /* Localización tipo estructurado */ }
-             | /* ε - Para permitir solo ID sin localización */
+             | estructurado
+             | /* ε - Eliminamos la localización vacía */
              ;
 
 arreglo : CORCHETE_IZQ exp CORCHETE_DER arreglo
-        { /* Arreglo con múltiples índices procesado */ }
         | CORCHETE_IZQ exp CORCHETE_DER
-        { /* Arreglo simple procesado */ }
         ;
 
 estructurado : PUNTO ID estructurado
-             { /* Estructura anidada procesada */ }
              | PUNTO ID
-             { /* Acceso a campo de estructura procesado */ }
              ;
 
-exp : exp OR_LOGICO exp_and
-    { /* Exp con OR lógico */ }
-    | exp_and
-    { /* Exp AND base */ }
+exp : exp OR_LOGICO exp
+    | exp AND_LOGICO exp
+    | exp OR_BIT exp
+    | exp XOR_BIT exp
+    | exp AND_BIT exp
+    | exp IGUALDAD exp
+    | exp DIFERENTE exp
+    | exp MENORQUE exp
+    | exp MAYORQUE exp
+    | exp MENORIGUAL exp
+    | exp MAYORIGUAL exp
+    | exp SHIFT_IZQUIERDA exp
+    | exp SHIFT_DERECHA exp
+    | exp SUMA exp
+    | exp RESTA exp
+    | exp MULTIPLICACION exp
+    | exp DIVISION exp
+    | exp MODULO exp
+    | exp DIVISION_ENTERA exp
+    | exp_unaria
     ;
 
-exp_and : exp_and AND_LOGICO exp_or_bit
-        { /* Exp con AND lógico */ }
-        | exp_or_bit
-        { /* Exp OR bit base */ }
-        ;
-
-exp_or_bit : exp_or_bit OR_BIT exp_xor_bit
-           { /* Exp con OR bit a bit */ }
-           | exp_xor_bit
-           { /* Exp XOR bit base */ }
-           ;
-
-exp_xor_bit : exp_xor_bit XOR_BIT exp_and_bit
-            { /* Exp con XOR bit a bit */ }
-            | exp_and_bit
-            { /* Exp AND bit base */ }
-            ;
-
-exp_and_bit : exp_and_bit AND_BIT exp_igualdad
-            { /* Exp con AND bit a bit */ }
-            | exp_igualdad
-            { /* Exp igualdad base */ }
-            ;
-
-exp_igualdad : exp_igualdad IGUALDAD exp_relacional
-             { /* Exp con IGUALDAD */ }
-             | exp_igualdad DIFERENTE exp_relacional
-             { /* Exp con DIFERENTE */ }
-             | exp_relacional
-             { /* Exp relacional base */ }
-             ;
-
-exp_relacional : exp_relacional MENORQUE exp_shift
-               { /* Exp MENORQUE */ }
-               | exp_relacional MAYORQUE exp_shift
-               { /* Exp MAYORQUE */ }
-               | exp_relacional MENORIGUAL exp_shift
-               { /* Exp MENORIGUAL */ }
-               | exp_relacional MAYORIGUAL exp_shift
-               { /* Exp MAYORIGUAL */ }
-               | exp_shift
-               { /* Exp shift base */ }
-               ;
-
-exp_shift : exp_shift SHIFT_IZQUIERDA exp_aditiva
-          { /* Exp SHIFT IZQUIERDA */ }
-          | exp_shift SHIFT_DERECHA exp_aditiva
-          { /* Exp SHIFT DERECHA */ }
-          | exp_aditiva
-          { /* Exp aditiva base */ }
-          ;
-
-exp_aditiva : exp_aditiva SUMA exp_multiplicativa
-            { /* Exp con SUMA */ }
-            | exp_aditiva RESTA exp_multiplicativa
-            { /* Exp con RESTA */ }
-            | exp_multiplicativa
-            { /* Exp multiplicativa base */ }
-            ;
-
-exp_multiplicativa : exp_multiplicativa MULTIPLICACION exp_unaria
-                   { /* Exp MULTIPLICACION */ }
-                   | exp_multiplicativa DIVISION exp_unaria
-                   { /* Exp DIVISION */ }
-                   | exp_multiplicativa MODULO exp_unaria
-                   { /* Exp MODULO */ }
-                   | exp_multiplicativa DIVISION_ENTERA exp_unaria
-                   { /* Exp DIV ENTERA */ }
-                   | exp_unaria
-                   { /* Exp unaria base */ }
-                   ;
-
 exp_unaria : RESTA exp_unaria
-           { /* Exp unaria con RESTA */ }
            | NOT_LOGICO exp_unaria
-           { /* Exp unaria NOT lógico */ }
            | NOT_BIT exp_unaria
-           { /* Exp unaria NOT bit */ }
            | exp_primaria
-           { /* Exp primaria base */ }
            ;
 
 exp_primaria : PARENTESIS_IZQ exp PARENTESIS_DER
-             { /* Exp con paréntesis */ }
-             | ID localizacion
-             { /* Exp ID con localización */ }
-             | ID PARENTESIS_IZQ parametros PARENTESIS_DER
-             { /* Llamada a función en exp */ }
-             | ID
-             { /* Exp ID simple */ }
+             | ID CORCHETE_IZQ exp CORCHETE_DER  
+             | ID PUNTO ID                    
+             | ID PARENTESIS_IZQ parametros PARENTESIS_DER 
+             | ID                             
              | FALSE
-             { /* Exp booleana FALSE */ }
              | TRUE
-             { /* Exp booleana TRUE */ }
              | LITERAL_ENTERA
-             { /* Exp literal entera */ }
              | LITERAL_RUNA
-             { /* Exp literal runa */ }
              | LITERAL_FLOTANTE
-             { /* Exp literal flotante */ }
              | LITERAL_DOBLE
-             { /* Exp literal doble */ }
              | LITERAL_COMPLEJA
-             { /* Exp literal compleja */ }
              | LITERAL_CADENA
-             { /* Exp literal cadena */ }
              ;
-
 parametros : lista_param
-            { /* Parámetros procesados */ }
             | /* ε */
-            { /* epsilon en parámetros */ }
             ;
 
 lista_param : lista_param COMA exp
-            { /* Lista de parámetros extendida */ }
             | exp
-            { /* Lista de parámetros simple */ }
             ;
 
 %%
