@@ -2,7 +2,6 @@ package Analizador_Sintactico;
 
 import java.io.FileReader;
 import java.io.IOException;
-import Analizador_Sintactico.Parser;
 
 public class Main {
     /**

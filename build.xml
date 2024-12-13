@@ -35,27 +35,26 @@
         </condition>
         <exec executable="${jflex.command}" failonerror="true">
             <arg value="-d" />
-            <arg value="${analizador.src.dir}/jflex" />
+            <arg value="${analizador.src.dir}" />
             <arg value="${analizador.src.dir}/jflex/Lexer.flex" />
         </exec>
         <exec executable="byaccj" failonerror="true">
             <arg value="-J" />
             <arg value="-Jclass=Parser" />
             <arg value="-Jpackage=Analizador_Sintactico" />
-            <arg value="-Joutput=${analizador.src.dir}/Parser.java" />
-            <arg value="-v" />
             <arg value="${analizador.src.dir}/byacc/Parser.y" />
         </exec>
+        <move todir="${analizador.src.dir}">
+            <fileset dir="." includes="Parser*.java" />
+        </move>
     </target>
 
     <target name="clean">
         <delete dir="${analizador.build.dir}" />
         <delete verbose="true">
-            <fileset dir="${analizador.src.dir}/jflex">
+            <fileset dir="${analizador.src.dir}">
                 <include name="Lexer.java" />
                 <include name="Lexer.java~" />
-            </fileset>
-            <fileset dir="${analizador.src.dir}/byacc">
                 <include name="Parser*.java" />
             </fileset>
             <fileset dir=".">
@@ -67,18 +66,15 @@
 
     <target name="analizador:compile" depends="clean,analizador:generate">
         <mkdir dir="${analizador.build.dir}" />
-        <javac srcdir="${analizador.src.dir}" destdir="${analizador.build.dir}" includeantruntime="false">
-            <classpath>
-                <pathelement location="${analizador.src.dir}" />
-            </classpath>
-        </javac>
+        <javac srcdir="${analizador.src.dir}" destdir="${analizador.build.dir}"
+            includeantruntime="false" />
     </target>
 
     <target name="analizador:run-test" depends="analizador:compile">
-        <java classname="Analizador_Sintactico.Parser" fork="true" failonerror="false">
+        <java classname="Analizador_Sintactico.Main" fork="true" failonerror="false">
             <classpath>
                 <pathelement location="${analizador.build.dir}" />
-                <pathelement location="${analizador.src.dir}" />
+                <pathelement location="." />
             </classpath>
             <arg value="${file}" />
         </java>
@@ -127,6 +123,15 @@
         </antcall>
     </target>
 
-    <target name="test-all" depends="test-complejo, test-valid1, test-valid2, test-valid3, test-invalid1, test-invalid2, test-invalid3"/>
+    <target name="test-all"
+        depends="
+                test-complejo,
+                test-valid1,
+                test-valid2,
+                test-valid3,
+                test-invalid1,
+                test-invalid2,
+                test-invalid3">
+    </target>
 
 </project>

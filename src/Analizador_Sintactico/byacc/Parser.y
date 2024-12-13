@@ -6,7 +6,7 @@ import Analizador_Sintactico.*;
 /* Símbolo inicial de la gramática */
 %start programa
 
-/* Declaración de tokens (sin <token>) */
+/* Declaración de tokens */
 %token INT FLOAT DOUBLE COMPLEX RUNE VOID STRING
 %token IF ELSE WHILE DO FOR BREAK RETURN SWITCH CASE DEFAULT PRINT SCAN
 %token FUNC STRUCT PROTO PTR
@@ -33,43 +33,50 @@ import Analizador_Sintactico.*;
 %left MULTIPLICACION DIVISION MODULO DIVISION_ENTERA
 %right NOT_LOGICO NOT_BIT
 %nonassoc PARENTESIS_IZQ PARENTESIS_DER CORCHETE_IZQ CORCHETE_DER PUNTO
-%nonassoc IF
-%right ELSE
+%nonassoc IF ELSE WHILE DO SWITCH CASE DEFAULT
 
 %%
 /* Reglas de producción */
 
-// Sin $$ ni $n, solo acciones vacías o mensajes.
-
-programa : decl_proto decl_var decl_func EOF 
+programa : decl_proto decl_tipo decl_var decl_func EOF 
         { System.out.println("\nPrograma analizado correctamente."); }
         ;
 
+/* Declaración de prototipos de funciones */
 decl_proto : PROTO tipo ID PARENTESIS_IZQ argumentos PARENTESIS_DER PUNTO_Y_COMA decl_proto 
            { /* Declaración de proto procesada */ }
            | /* ε */
            { /* epsilon en decl_proto */ }
            ;
 
-decl_var : tipo lista_var PUNTO_Y_COMA decl_var 
-         { /* Declaración de variable procesada */ }
+/* Declaración de tipos estructurados con nombre a nivel superior */
+decl_tipo : STRUCT ID LLAVE_IZQ decl_var LLAVE_DER PUNTO_Y_COMA decl_tipo
+          { /* Declaración de struct con nombre procesada */ }
+          | /* ε */
+          { /* epsilon en decl_tipo */ }
+          ;
+
+/* Declaración de variables globales */
+decl_var : tipo lista_inis PUNTO_Y_COMA decl_var 
+         { /* Declaración de variable con potencial inicialización procesada */ }
          | /* ε */
          { /* epsilon en decl_var */ }
          ;
 
+/* Declaración de funciones */
 decl_func : FUNC tipo ID PARENTESIS_IZQ argumentos PARENTESIS_DER bloque decl_func 
           { /* Declaración de función procesada */ }
           | /* ε */
           { /* epsilon en decl_func */ }
           ;
 
-tipo : basico compuesto 
-     { /* Tipo básico compuesto */ }
+tipo : basico compuesto
      | STRUCT LLAVE_IZQ decl_var LLAVE_DER
-     { /* Tipo struct procesado */ }
+     | STRUCT ID LLAVE_IZQ decl_var LLAVE_DER
      | puntero
-     { /* Tipo puntero procesado */ }
+     | ID  /* Ahora permitimos que un ID actúe como tipo, e.g. Punto */
      ;
+
 
 puntero : PTR basico
         { /* Puntero a tipo básico */ }
@@ -90,11 +97,30 @@ compuesto : CORCHETE_IZQ LITERAL_ENTERA CORCHETE_DER compuesto
           { /* epsilon en compuesto */ }
           ;
 
-lista_var : lista_var COMA ID 
-          { /* Lista de variables extendida */ }
-          | ID
-          { /* Variable declarada */ }
-          ;
+/* Lista de inicializaciones en declaraciones de variables */
+lista_inis : lista_inis COMA ini_var 
+           { /* Lista de variables extendida */ }
+           | ini_var
+           { /* Variable inicializada o no */ }
+           ;
+
+ini_var : ID
+        { /* Variable sin inicializar */ }
+        | ID ASIGNACION init_val
+        { /* Variable con inicialización */ }
+        ;
+
+init_val : exp
+         { /* Inicialización simple con expresión */ }
+         | LLAVE_IZQ lista_exps LLAVE_DER
+         { /* Inicialización tipo {exp, exp, ...} */ }
+         ;
+
+lista_exps : lista_exps COMA exp
+           { /* Lista de expresiones extendida */ }
+           | exp
+           { /* Lista de expresiones simple */ }
+           ;
 
 argumentos : lista_args 
            { /* Argumentos procesados */ }
@@ -118,7 +144,7 @@ declaraciones : declaraciones declaracion
                { /* epsilon en declaraciones */ }
                ;
 
-declaracion : tipo lista_var PUNTO_Y_COMA
+declaracion : tipo lista_inis PUNTO_Y_COMA
             { /* Declaración simple procesada */ }
             ;
 
@@ -150,6 +176,8 @@ sentencia : if_sentencia
           { /* Sentencia SCAN procesada */ }
           | parte_izquierda ASIGNACION exp PUNTO_Y_COMA
           { /* Sentencia de asignación procesada */ }
+          | ID PARENTESIS_IZQ parametros PARENTESIS_DER PUNTO_Y_COMA
+          { /* Llamada a función como sentencia */ }
           ;
 
 if_sentencia : IF PARENTESIS_IZQ exp PARENTESIS_DER sentencia else_parte %prec IF
@@ -162,8 +190,6 @@ else_parte : ELSE sentencia
            { /* epsilon en else_parte */ }
            ;
 
-// Nueva estructura para evitar conflictos:
-// En vez de casos con 4 opciones, lo partimos en dos opcionales: lista_casos_opt y predeterminado_opt.
 casos : lista_casos_opt predeterminado_opt
       { /* casos procesados */ }
       ;
@@ -210,6 +236,7 @@ localizacion : arreglo
              { /* Localización tipo arreglo */ }
              | estructurado 
              { /* Localización tipo estructurado */ }
+             | /* ε - Para permitir solo ID sin localización */
              ;
 
 arreglo : CORCHETE_IZQ exp CORCHETE_DER arreglo
@@ -225,117 +252,117 @@ estructurado : PUNTO ID estructurado
              ;
 
 exp : exp OR_LOGICO exp_and
-    { /* Expresión con OR lógico */ }
+    { /* Exp con OR lógico */ }
     | exp_and
-    { /* Expresión AND base */ }
+    { /* Exp AND base */ }
     ;
 
 exp_and : exp_and AND_LOGICO exp_or_bit
-        { /* Expresión con AND lógico */ }
+        { /* Exp con AND lógico */ }
         | exp_or_bit
-        { /* Expresión OR bit base */ }
+        { /* Exp OR bit base */ }
         ;
 
 exp_or_bit : exp_or_bit OR_BIT exp_xor_bit
-           { /* Expresión con OR bit a bit */ }
+           { /* Exp con OR bit a bit */ }
            | exp_xor_bit
-           { /* Expresión XOR bit base */ }
+           { /* Exp XOR bit base */ }
            ;
 
 exp_xor_bit : exp_xor_bit XOR_BIT exp_and_bit
-            { /* Expresión con XOR bit a bit */ }
+            { /* Exp con XOR bit a bit */ }
             | exp_and_bit
-            { /* Expresión AND bit base */ }
+            { /* Exp AND bit base */ }
             ;
 
 exp_and_bit : exp_and_bit AND_BIT exp_igualdad
-            { /* Expresión con AND bit a bit */ }
+            { /* Exp con AND bit a bit */ }
             | exp_igualdad
-            { /* Expresión igualdad base */ }
+            { /* Exp igualdad base */ }
             ;
 
 exp_igualdad : exp_igualdad IGUALDAD exp_relacional
-             { /* Expresión con IGUALDAD */ }
+             { /* Exp con IGUALDAD */ }
              | exp_igualdad DIFERENTE exp_relacional
-             { /* Expresión con DIFERENTE */ }
+             { /* Exp con DIFERENTE */ }
              | exp_relacional
-             { /* Expresión relacional base */ }
+             { /* Exp relacional base */ }
              ;
 
 exp_relacional : exp_relacional MENORQUE exp_shift
-               { /* Expresión con MENORQUE */ }
+               { /* Exp MENORQUE */ }
                | exp_relacional MAYORQUE exp_shift
-               { /* Expresión con MAYORQUE */ }
+               { /* Exp MAYORQUE */ }
                | exp_relacional MENORIGUAL exp_shift
-               { /* Expresión con MENORIGUAL */ }
+               { /* Exp MENORIGUAL */ }
                | exp_relacional MAYORIGUAL exp_shift
-               { /* Expresión con MAYORIGUAL */ }
+               { /* Exp MAYORIGUAL */ }
                | exp_shift
-               { /* Expresión shift base */ }
+               { /* Exp shift base */ }
                ;
 
 exp_shift : exp_shift SHIFT_IZQUIERDA exp_aditiva
-          { /* Expresión con SHIFT IZQUIERDA */ }
+          { /* Exp SHIFT IZQUIERDA */ }
           | exp_shift SHIFT_DERECHA exp_aditiva
-          { /* Expresión con SHIFT DERECHA */ }
+          { /* Exp SHIFT DERECHA */ }
           | exp_aditiva
-          { /* Expresión aditiva base */ }
+          { /* Exp aditiva base */ }
           ;
 
 exp_aditiva : exp_aditiva SUMA exp_multiplicativa
-            { /* Expresión con SUMA */ }
+            { /* Exp con SUMA */ }
             | exp_aditiva RESTA exp_multiplicativa
-            { /* Expresión con RESTA */ }
+            { /* Exp con RESTA */ }
             | exp_multiplicativa
-            { /* Expresión multiplicativa base */ }
+            { /* Exp multiplicativa base */ }
             ;
 
 exp_multiplicativa : exp_multiplicativa MULTIPLICACION exp_unaria
-                   { /* Expresión con MULTIPLICACION */ }
+                   { /* Exp MULTIPLICACION */ }
                    | exp_multiplicativa DIVISION exp_unaria
-                   { /* Expresión con DIVISION */ }
+                   { /* Exp DIVISION */ }
                    | exp_multiplicativa MODULO exp_unaria
-                   { /* Expresión con MODULO */ }
+                   { /* Exp MODULO */ }
                    | exp_multiplicativa DIVISION_ENTERA exp_unaria
-                   { /* Expresión con DIVISION ENTERA */ }
+                   { /* Exp DIV ENTERA */ }
                    | exp_unaria
-                   { /* Expresión unaria base */ }
+                   { /* Exp unaria base */ }
                    ;
 
 exp_unaria : RESTA exp_unaria
-           { /* Expresión unaria con RESTA */ }
+           { /* Exp unaria con RESTA */ }
            | NOT_LOGICO exp_unaria
-           { /* Expresión unaria con NOT lógico */ }
+           { /* Exp unaria NOT lógico */ }
            | NOT_BIT exp_unaria
-           { /* Expresión unaria con NOT bit */ }
+           { /* Exp unaria NOT bit */ }
            | exp_primaria
-           { /* Expresión primaria base */ }
+           { /* Exp primaria base */ }
            ;
 
 exp_primaria : PARENTESIS_IZQ exp PARENTESIS_DER
-             { /* Expresión primaria con paréntesis */ }
+             { /* Exp con paréntesis */ }
              | ID localizacion
-             { /* Expresión primaria con ID y localización */ }
+             { /* Exp ID con localización */ }
              | ID PARENTESIS_IZQ parametros PARENTESIS_DER
-             { /* Expresión primaria llamada a función */ }
+             { /* Llamada a función en exp */ }
              | ID
-             { /* Expresión primaria ID */ }
+             { /* Exp ID simple */ }
              | FALSE
-             { /* Expresión primaria FALSE */ }
+             { /* Exp booleana FALSE */ }
              | TRUE
-             { /* Expresión primaria TRUE */ }
+             { /* Exp booleana TRUE */ }
              | LITERAL_ENTERA
-             { /* Expresión primaria literal entera */ }
+             { /* Exp literal entera */ }
              | LITERAL_RUNA
-             { /* Expresión primaria literal runa */ }
+             { /* Exp literal runa */ }
              | LITERAL_FLOTANTE
-             { /* Expresión primaria literal flotante */ }
+             { /* Exp literal flotante */ }
              | LITERAL_DOBLE
-             { /* Expresión primaria literal doble */ }
+             { /* Exp literal doble */ }
              | LITERAL_COMPLEJA
-             { /* Expresión primaria literal compleja */ }
+             { /* Exp literal compleja */ }
              | LITERAL_CADENA
-             { /* Expresión primaria literal cadena */ }
+             { /* Exp literal cadena */ }
              ;
 
 parametros : lista_param
@@ -352,12 +379,12 @@ lista_param : lista_param COMA exp
 
 %%
 
-// Código de soporte 
+/* Código de soporte */
 private Lexer lexer;
 private Analizador_Sintactico.Token currentToken;
 
 public Parser(Reader input) {
-    lexer = new Lexer(input); // Y aquí
+    lexer = new Lexer(input);
     System.out.println("\nIniciando el análisis sintáctico... ⏳");
 }
 
