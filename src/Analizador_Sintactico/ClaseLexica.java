@@ -1,7 +1,6 @@
 package Analizador_Sintactico;
 
 public enum ClaseLexica {
-    // Orden EXACTO según Parser.y
     INT("INT"),
     FLOAT("FLOAT"),
     DOUBLE("DOUBLE"),
